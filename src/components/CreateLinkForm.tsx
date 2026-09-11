@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreateLinkInput } from "@/lib/types";
-import { isValidUrl, isValidSlug } from "@/lib/utils";
+import { isValidUrl, isValidSlug, toLocalDateTimeString } from "@/lib/utils";
 import {
   Link2,
   Globe,
@@ -14,6 +14,13 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+
+const EXPIRATION_PRESETS = [
+  { label: "+1 Hour", ms: 60 * 60 * 1000 },
+  { label: "+24 Hours", ms: 24 * 60 * 60 * 1000 },
+  { label: "+7 Days", ms: 7 * 24 * 60 * 60 * 1000 },
+  { label: "+30 Days", ms: 30 * 24 * 60 * 60 * 1000 },
+];
 
 export default function CreateLinkForm() {
   const router = useRouter();
@@ -32,6 +39,15 @@ export default function CreateLinkForm() {
   function updateField(key: keyof CreateLinkInput, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setError("");
+  }
+
+  function applyPreset(durationMs: number | null) {
+    if (durationMs === null) {
+      updateField("expiresAt", "");
+      return;
+    }
+    const targetDate = new Date(Date.now() + durationMs);
+    updateField("expiresAt", toLocalDateTimeString(targetDate));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -56,6 +72,14 @@ export default function CreateLinkForm() {
     if (form.slug && !isValidSlug(form.slug)) {
       setError("Slug must be 2-50 characters: letters, numbers, hyphens, underscores");
       return;
+    }
+
+    if (form.expiresAt) {
+      const expiry = new Date(form.expiresAt);
+      if (isNaN(expiry.getTime()) || expiry.getTime() <= Date.now()) {
+        setError("Expiration date must be in the future");
+        return;
+      }
     }
 
     setLoading(true);
@@ -179,19 +203,51 @@ export default function CreateLinkForm() {
 
           {/* Expiration Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Expiration Date <span className="text-gray-400 font-normal">(optional)</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Expiration Date <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              {form.expiresAt && (
+                <button
+                  type="button"
+                  onClick={() => applyPreset(null)}
+                  className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors cursor-pointer"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
             <div className="relative">
               <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="datetime-local"
                 value={form.expiresAt}
+                min={toLocalDateTimeString()}
                 onChange={(e) => updateField("expiresAt", e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <span className="text-xs text-gray-500 mr-1">Presets:</span>
+              {EXPIRATION_PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => applyPreset(preset.ms)}
+                  className="px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors cursor-pointer"
+                >
+                  {preset.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => applyPreset(null)}
+                className="px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1.5">
               The link will stop working after this date
             </p>
           </div>

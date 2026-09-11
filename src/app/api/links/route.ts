@@ -54,6 +54,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate expiration if provided
+    if (body.expiresAt) {
+      const expiry = new Date(body.expiresAt);
+      if (isNaN(expiry.getTime()) || expiry.getTime() <= Date.now()) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Expiration date must be in the future",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     let link;
     if (isDatabaseConfigured()) {
       try {

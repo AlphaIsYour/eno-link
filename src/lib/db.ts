@@ -61,6 +61,13 @@ export async function createLink(input: CreateLinkInput): Promise<LinkData> {
   const prisma = getPrisma();
   if (!prisma) throw new Error("Database not configured");
 
+  if (input.expiresAt) {
+    const expiry = new Date(input.expiresAt);
+    if (isNaN(expiry.getTime()) || expiry.getTime() <= Date.now()) {
+      throw new Error("Expiration date must be in the future");
+    }
+  }
+
   const slug = input.slug || generateSlug();
 
   const link = await prisma.link.create({

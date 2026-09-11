@@ -108,6 +108,13 @@ class DemoStore {
       throw new Error("Slug already exists");
     }
 
+    if (input.expiresAt) {
+      const expiry = new Date(input.expiresAt);
+      if (isNaN(expiry.getTime()) || expiry.getTime() <= Date.now()) {
+        throw new Error("Expiration date must be in the future");
+      }
+    }
+
     const link: LinkData = {
       id,
       slug,

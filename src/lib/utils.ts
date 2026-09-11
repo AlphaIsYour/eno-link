@@ -67,3 +67,14 @@ export function truncateUrl(url: string, maxLength: number = 50): string {
   if (url.length <= maxLength) return url;
   return url.substring(0, maxLength) + "...";
 }
+
+export function toLocalDateTimeString(date: Date = new Date()): string {
+  if (isNaN(date.getTime())) return "";
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
