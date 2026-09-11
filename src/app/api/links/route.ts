@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreateLinkInput } from "@/lib/types";
-import { isValidUrl, isValidSlug } from "@/lib/utils";
+import { isValidUrl, isValidSlug, isReservedSlug } from "@/lib/utils";
 import { isDatabaseConfigured, getAllLinks, createLink, getDashboardStats } from "@/lib/db";
 import { getDemoStore } from "@/lib/store";
 
@@ -49,6 +49,17 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid slug. Use 2-50 characters: letters, numbers, hyphens, underscores",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check for reserved slugs
+    if (body.slug && isReservedSlug(body.slug)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `The slug '${body.slug}' is reserved for system use`,
         },
         { status: 400 }
       );

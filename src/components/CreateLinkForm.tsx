@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreateLinkInput } from "@/lib/types";
-import { isValidUrl, isValidSlug, toLocalDateTimeString } from "@/lib/utils";
+import { isValidUrl, isValidSlug, isReservedSlug, toLocalDateTimeString } from "@/lib/utils";
 import {
   Link2,
   Globe,
@@ -71,6 +71,11 @@ export default function CreateLinkForm() {
 
     if (form.slug && !isValidSlug(form.slug)) {
       setError("Slug must be 2-50 characters: letters, numbers, hyphens, underscores");
+      return;
+    }
+
+    if (form.slug && isReservedSlug(form.slug)) {
+      setError(`The slug '${form.slug}' is reserved for system use`);
       return;
     }
 
