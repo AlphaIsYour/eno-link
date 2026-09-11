@@ -1,212 +1,234 @@
 # EnoLink
 
-A powerful, production-ready URL shortener and link utility platform built with modern web technologies.
+<div align="center">
 
-## Overview
+![Next.js](https://img.shields.io/badge/Next.js-16.2.9-black?style=for-the-badge&logo=next.js)
+![React](https://img.shields.io/badge/React-19.2.4-blue?style=for-the-badge&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=for-the-badge&logo=tailwindcss)
+![Prisma](https://img.shields.io/badge/Prisma-7.8.0-2D3748?style=for-the-badge&logo=prisma)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)
 
-EnoLink lets you create short links with custom slugs, track clicks, generate QR codes, set expiration dates, and password-protect your links — all from a clean, trustworthy dashboard.
+**A modern, production-ready URL shortener and link utility platform designed for speed, privacy, and simplicity.**
 
-## Features
+[Quick Start](#-quick-start) • [Architecture](#-architecture--dual-mode) • [Roadmap](#-roadmap) • [Contributing](#-contributing) • [Support](#-support)
 
-- **Short Links** — Generate short URLs with random or custom slugs
-- **Custom Slugs** — Choose your own memorable link slugs
-- **Random Slugs** — Auto-generated short slugs using nanoid
-- **Expiration Dates** — Set links to expire automatically
-- **Password Protection** — Require a password to access sensitive links
-- **Click Tracking** — Count clicks and see last accessed time
-- **QR Codes** — Auto-generated QR codes for every link (PNG & SVG export)
-- **Dashboard** — Overview of all links with search and filters
-- **Analytics Cards** — Total links, total clicks, top links, recent activity
-- **Demo Mode** — Works without a database using in-memory storage
-- **Responsive UI** — Clean design that works on all devices
+</div>
 
-## Tech Stack
+---
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
-| ORM | Prisma 7 (adapter-based) |
-| Database | PostgreSQL (via `@prisma/adapter-pg`) |
-| QR Codes | qrcode.react |
-| Short IDs | nanoid |
-| Icons | Lucide React |
+## ⚡ Overview
 
-## Getting Started
+**EnoLink** is an open-source link management engine and URL shortener built with Next.js 16 (App Router). It allows you to create fast short links with custom or auto-generated slugs, generate instant QR codes (with PNG/SVG export), set password protection, schedule automatic expiration, and inspect real-time click metrics through a sleek dashboard.
+
+Best of all: **EnoLink runs out-of-the-box in Demo Mode without requiring any database setup.**
+
+---
+
+## ✨ Features
+
+- 🔗 **Short URLs** — Instant short link generation with random slugs via `nanoid` or user-defined custom slugs.
+- 🔒 **Password Protection** — Gate sensitive destination links behind secure passcodes.
+- ⏳ **Expiration Schedules** — Automatically expire temporary links with HTTP `410 Gone` resolution.
+- 📱 **QR Code Engine** — Auto-generated responsive QR codes with one-click PNG & SVG download.
+- 📊 **Real-Time Click Tracking** — Track total hits and last accessed timestamps.
+- 🎛️ **Modern Dashboard** — Search, filter (active/expired/protected), toggle link status, and copy links instantly.
+- 🚀 **Zero-Config Demo Mode** — Develop and test locally with zero database setup using an in-memory fallback store.
+- 🗄️ **Production-Ready PostgreSQL** — Seamless adapter-based Prisma ORM integration for persistent production workloads.
+
+---
+
+## 🏗️ Architecture & Dual-Mode
+
+EnoLink is engineered to be developer-friendly by supporting two operation modes:
+
+```
+                  ┌────────────────────────┐
+                  │  Client HTTP Requests  │
+                  └───────────┬────────────┘
+                              │
+                              ▼
+                     ┌──────────────────┐
+                     │ Next.js 16 APIs  │
+                     └────────┬─────────┘
+                              │
+               DATABASE_URL configured?
+                             / \
+                       YES  /   \  NO
+                           /     \
+                          ▼       ▼
+       ┌────────────────────┐   ┌───────────────────────┐
+       │   PostgreSQL DB    │   │ In-Memory Demo Store  │
+       │ (Prisma 7 Adapter) │   │     (Zero-Config)     │
+       └────────────────────┘   └───────────────────────┘
+```
+
+1. **Demo Mode (Default):** If `DATABASE_URL` is omitted, EnoLink automatically loads an in-memory store populated with mock data. Perfect for rapid UI development and testing.
+2. **Database Mode (Persistent):** When `DATABASE_URL` is provided, EnoLink uses Prisma 7 with `@prisma/adapter-pg` to query your PostgreSQL database.
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Node.js 20.9+
-- npm or yarn
-- PostgreSQL (optional — demo mode works without it)
+- npm, yarn, or pnpm
 
-### Quick Start (Demo Mode)
+### 1. ⚡ Quick Start (Demo Mode — No Database Required)
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd enolink
+# 1. Clone the repository
+git clone https://github.com/AlphaIsYour/youralpha-06-eno-link.git
+cd youralpha-06-eno-link
 
-# Install dependencies
+# 2. Install dependencies (Prisma client generates automatically)
 npm install
 
-# Start the development server
+# 3. Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — the app runs in demo mode with in-memory storage.
+Open [http://localhost:3000](http://localhost:3000) to view the dashboard with pre-seeded demo links!
 
-### With PostgreSQL
+---
 
-1. **Create a `.env` file:**
+### 2. 🗄️ With PostgreSQL (Production Mode)
 
-```bash
-cp .env.example .env
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure your PostgreSQL connection:
+   ```env
+   DATABASE_URL="postgresql://username:password@localhost:5432/enolink"
+   NEXT_PUBLIC_APP_URL="http://localhost:3000"
+   ```
+
+3. Run Prisma database migrations:
+   ```bash
+   npx prisma migrate dev --name init
+   ```
+
+4. Start the app:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 📂 Project Structure
+
+```
+06-eno-link/
+├── .github/
+│   ├── workflows/ci.yml       # GitHub Actions automated lint & build
+│   ├── ISSUE_TEMPLATE/        # Bug, feature, and docs issue templates
+│   ├── PULL_REQUEST_TEMPLATE  # Contributor checklist
+│   └── ISSUES.md              # Curated backlog of open issues
+├── prisma/
+│   └── schema.prisma          # PostgreSQL data model
+├── src/
+│   ├── app/
+│   │   ├── api/               # REST API endpoints
+│   │   ├── create/            # Create link page
+│   │   ├── link/[id]/         # Link details & QR export page
+│   │   ├── [slug]/            # Public short link resolver & redirector
+│   │   └── page.tsx           # Dashboard page
+│   ├── components/            # Reusable UI components
+│   └── lib/                   # Database, in-memory store, and utils
+├── CONTRIBUTING.md            # Contributor guide & developer workflow
+├── CODE_OF_CONDUCT.md         # Community code of conduct
+└── SECURITY.md                # Vulnerability disclosure policy
 ```
 
-2. **Set your database URL:**
+---
 
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/enolink"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
-3. **Run database migrations:**
-
-```bash
-npx prisma migrate dev --name init
-```
-
-4. **Start the development server:**
-
-```bash
-npm run dev
-```
-
-## Scripts
+## 🛠️ Available Scripts
 
 | Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server (with Turbopack) |
-| `npm run build` | Build for production |
-| `npm start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npx prisma studio` | Open Prisma Studio (database GUI) |
-| `npx prisma migrate dev` | Run database migrations |
-| `npx prisma generate` | Generate Prisma client |
+|---|---|
+| `npm run dev` | Starts dev server with Turbopack at `localhost:3000` |
+| `npm run build` | Builds production Next.js bundle |
+| `npm start` | Starts production server |
+| `npm run lint` | Runs ESLint analysis |
+| `npx prisma studio` | Launches Prisma GUI to browse database records |
+| `npx prisma migrate dev` | Runs migrations against local PostgreSQL |
 
-## Project Structure
+---
+
+## 🗺️ Roadmap
+
+We maintain a transparent roadmap reflecting the real direction of EnoLink:
+
+### ✅ Completed
+- [x] Next.js 16 App Router foundation with React 19 and Tailwind CSS v4
+- [x] Zero-config in-memory Demo Store with seed links
+- [x] Custom slug & random slug generation via `nanoid`
+- [x] Password protection and expiration date enforcement
+- [x] QR code generator with PNG and SVG exports
+- [x] Prisma 7 PostgreSQL adapter integration
+
+### 🔄 In Progress / Help Wanted (Immediate)
+- [ ] **[#1] Security:** Enforce HTTP/HTTPS URL protocol sanitization (`good first issue`)
+- [ ] **[#2] Routing:** Block reserved system slugs (`create`, `api`, `_next`) (`good first issue`)
+- [ ] **[#3] Accessibility:** Add mobile menu `aria-labels` and safe clipboard copy fallback (`good first issue`)
+- [ ] **[#4] Testing:** Setup Vitest test runner with unit tests for utils and store
+- [ ] **[#5] UI/UX:** Quick expiration presets (1h, 24h, 7d, 30d) and past date validation
+
+### 📌 Planned
+- [ ] **[#6] UTM Campaign Builder:** Interactive modal to append UTM marketing tags
+- [ ] **[#7] Bulk Export:** Export links and stats to CSV and JSON formats
+- [ ] **[#8] Visual Analytics:** Interactive 7-day and 30-day click trends chart
+
+### 🔮 Future Ideas
+- [ ] User authentication & multi-tenant team workspaces
+- [ ] Custom domain support for branded short links
+- [ ] Webhook alerts when click milestones are reached
+- [ ] Link-in-bio personal page generator
+
+*(For full issue specifications, visit [.github/ISSUES.md](.github/ISSUES.md) or the repository Issues tab!)*
+
+---
+
+## 🤝 Contributing
+
+We love contributions! Whether you're fixing a typo, improving documentation, or adding a major feature, check out our [Contributing Guide](CONTRIBUTING.md).
+
+Looking for an easy place to start? Browse issues labeled [`good first issue`](https://github.com/AlphaIsYour/youralpha-06-eno-link/labels/good%20first%20issue).
 
 ```
-src/
-├── app/
-│   ├── api/
-│   │   ├── links/          # CRUD API for links
-│   │   │   └── [id]/       # Individual link operations
-│   │   └── [slug]/         # Resolve & redirect short links
-│   ├── create/             # Create new link page
-│   ├── link/[id]/          # Link detail page
-│   ├── [slug]/             # Short link redirect page
-│   ├── globals.css         # Global styles
-│   ├── layout.tsx          # Root layout
-│   └── page.tsx            # Dashboard (server component)
-├── components/
-│   ├── AnalyticsCards.tsx   # Dashboard stats cards
-│   ├── CreateLinkForm.tsx   # Link creation form
-│   ├── DashboardClient.tsx  # Dashboard client component
-│   ├── Footer.tsx           # Site footer
-│   ├── Header.tsx           # Site header
-│   ├── LinkCard.tsx         # Link list item card
-│   └── QRCodeDisplay.tsx    # QR code with export
-├── lib/
-│   ├── db.ts               # Prisma database operations (adapter-based)
-│   ├── store.ts            # In-memory demo store
-│   ├── types.ts            # TypeScript interfaces
-│   └── utils.ts            # Utility functions
-prisma/
-└── schema.prisma           # Database schema
+🟢 First-Time Contributor (Docs, a11y, unit tests)
+   └── 🟡 Code Contributor (API routes, form validation, presets)
+         └── 🟠 Feature Contributor (Analytics, UTM builder, export)
+               └── 🟣 Core Reviewer (PR reviews & architecture)
 ```
 
-## API Routes
+---
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/links` | List all links with stats |
-| `POST` | `/api/links` | Create a new short link |
-| `GET` | `/api/links/:id` | Get link details |
-| `PATCH` | `/api/links/:id` | Toggle link active status |
-| `DELETE` | `/api/links/:id` | Delete a link |
-| `GET` | `/api/:slug` | Resolve a short link |
+## 👥 Contributors
 
-### Create Link Request
+A big thank you to everyone who helps make EnoLink better!
 
-```json
-{
-  "originalUrl": "https://example.com/long-url",
-  "slug": "my-custom-slug",
-  "title": "My Link",
-  "password": "optional-password",
-  "expiresAt": "2025-12-31T23:59:59.000Z"
-}
-```
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+*Be the first to contribute! Check out [CONTRIBUTING.md](CONTRIBUTING.md) to get started.*
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
-## Deployment
+---
 
-### Vercel
+## ☕ Support
 
-1. Push your code to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Add environment variables:
-   - `DATABASE_URL` — Your PostgreSQL connection string
-   - `NEXT_PUBLIC_APP_URL` — Your deployed URL
-4. Deploy!
+If EnoLink helps you shorten, manage, or share links, consider supporting its continuous maintenance:
 
-### Other Platforms
+<a href="https://buymeacoffee.com/enoalph" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="42" width="150" />
+</a>
 
-The app works on any platform that supports Next.js. Ensure:
-- Node.js 20.9+ is available
-- `DATABASE_URL` is set for persistent storage
-- Run `npx prisma migrate deploy` before starting
+*Your support helps fund ongoing maintenance, hosting, and open-source development.*
 
-## Database Schema
+---
 
-```prisma
-model Link {
-  id           String    @id @default(cuid())
-  slug         String    @unique
-  originalUrl  String
-  title        String?
-  password     String?
-  expiresAt    DateTime?
-  clicks       Int       @default(0)
-  lastAccessed DateTime?
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
-```
+## 📄 License
 
-## Roadmap
-
-- [ ] User authentication (multi-user support)
-- [ ] Link analytics with charts (clicks over time, referrers, geography)
-- [ ] Bulk link import/export (CSV)
-- [ ] API rate limiting
-- [ ] Custom domains support
-- [ ] Link bundles/collections
-- [ ] Webhook notifications for click thresholds
-- [ ] A/B testing for destination URLs
-- [ ] Link-in-bio page generator
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
+This project is licensed under the [MIT License](LICENSE).
