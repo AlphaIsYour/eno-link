@@ -35,7 +35,10 @@ export async function POST(request: NextRequest) {
     // Validate URL
     if (!body.originalUrl || !isValidUrl(body.originalUrl)) {
       return NextResponse.json(
-        { success: false, error: "Invalid URL provided" },
+        {
+          success: false,
+          error: "Invalid URL provided. URL must use http:// or https:// with a valid host",
+        },
         { status: 400 }
       );
     }
