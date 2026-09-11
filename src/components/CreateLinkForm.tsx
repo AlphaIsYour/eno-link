@@ -44,12 +44,12 @@ export default function CreateLinkForm() {
     }
 
     let url = form.originalUrl.trim();
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) {
       url = "https://" + url;
     }
 
     if (!isValidUrl(url)) {
-      setError("Please enter a valid URL");
+      setError("Please enter a valid HTTP or HTTPS URL (e.g. https://example.com)");
       return;
     }
 

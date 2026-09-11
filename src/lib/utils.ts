@@ -11,8 +11,11 @@ export function generateSlug(length: number = 7): string {
 
 export function isValidUrl(url: string): boolean {
   try {
-    new URL(url);
-    return true;
+    const parsed = new URL(url);
+    return (
+      (parsed.protocol === "http:" || parsed.protocol === "https:") &&
+      Boolean(parsed.hostname)
+    );
   } catch {
     return false;
   }
