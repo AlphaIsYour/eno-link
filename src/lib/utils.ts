@@ -21,6 +21,27 @@ export function isValidUrl(url: string): boolean {
   }
 }
 
+export const RESERVED_SLUGS = new Set([
+  "api",
+  "create",
+  "link",
+  "dashboard",
+  "admin",
+  "login",
+  "register",
+  "auth",
+  "settings",
+  "public",
+  "_next",
+  "favicon.ico",
+  "robots.txt",
+  "sitemap.xml",
+]);
+
+export function isReservedSlug(slug: string): boolean {
+  return RESERVED_SLUGS.has(slug.toLowerCase());
+}
+
 export function isValidSlug(slug: string): boolean {
   return /^[a-zA-Z0-9_-]+$/.test(slug) && slug.length >= 2 && slug.length <= 50;
 }
