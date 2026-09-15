@@ -3,6 +3,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { Download, Copy, Check } from "lucide-react";
 import { useState, useRef } from "react";
+import { copyToClipboard } from "@/lib/utils";
 
 interface Props {
   url: string;
@@ -54,9 +55,15 @@ export default function QRCodeDisplay({ url, slug, size = 200 }: Props) {
   }
 
   async function copyUrl() {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      const success = await copyToClipboard(url);
+      if (success) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // Gracefully ignore clipboard failures
+    }
   }
 
   return (
@@ -89,6 +96,7 @@ export default function QRCodeDisplay({ url, slug, size = 200 }: Props) {
         </button>
         <button
           onClick={copyUrl}
+          aria-label="Copy short link to clipboard"
           className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
         >
           {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { LinkData } from "@/lib/types";
-import { getBaseUrl, formatDate, isExpired } from "@/lib/utils";
+import { getBaseUrl, formatDate, isExpired, copyToClipboard } from "@/lib/utils";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
 import {
   ArrowLeft,
@@ -58,10 +58,16 @@ export default function LinkDetailPage() {
     };
   }, [id]);
 
-  async function copyToClipboard(text: string) {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  async function handleCopy(text: string) {
+    try {
+      const success = await copyToClipboard(text);
+      if (success) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // Gracefully ignore clipboard failures
+    }
   }
 
   if (loading) {
@@ -134,7 +140,8 @@ export default function LinkDetailPage() {
           <div className="flex items-center gap-3">
             <span className="text-lg font-mono text-blue-600 flex-1">{shortUrl}</span>
             <button
-              onClick={() => copyToClipboard(shortUrl)}
+              onClick={() => handleCopy(shortUrl)}
+              aria-label="Copy short link to clipboard"
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
