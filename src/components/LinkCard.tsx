@@ -1,7 +1,7 @@
 "use client";
 
 import { LinkData } from "@/lib/types";
-import { getBaseUrl, formatRelativeTime, isExpired, truncateUrl, cn } from "@/lib/utils";
+import { getBaseUrl, formatRelativeTime, isExpired, truncateUrl, cn, copyToClipboard as copyHelper } from "@/lib/utils";
 import {
   Copy,
   ExternalLink,
@@ -32,9 +32,15 @@ export default function LinkCard({ link, onDelete, onToggle }: Props) {
   const expired = isExpired(link.expiresAt);
 
   async function copyToClipboard() {
-    await navigator.clipboard.writeText(shortUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      const success = await copyHelper(shortUrl);
+      if (success) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // Gracefully ignore clipboard failures
+    }
   }
 
   function handleDelete() {
@@ -87,6 +93,7 @@ export default function LinkCard({ link, onDelete, onToggle }: Props) {
           <span className="text-sm font-mono text-blue-600 truncate flex-1">{shortUrl}</span>
           <button
             onClick={copyToClipboard}
+            aria-label="Copy short link to clipboard"
             className="flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium flex-shrink-0"
           >
             {copied ? (

@@ -99,3 +99,28 @@ export function toLocalDateTimeString(date: Date = new Date()): string {
   const minutes = pad(date.getMinutes());
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
+
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    if (typeof navigator !== "undefined" && navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    if (typeof document !== "undefined") {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return successful;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
